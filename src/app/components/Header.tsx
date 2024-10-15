@@ -20,7 +20,7 @@ const Header = () => {
                 <nav aria-label="Global" className="hidden ml-10 md:block ">
                     <ul className="flex items-center gap-8 text-md  font-bold ">
                         <li>
-                            <a className="text-gray-500 transition hover:text-gray-500/75" href="#"> 全部 </a>
+                            <a className="text-gray-500 transition hover:text-gray-500/75" href={"/products"}> 全部 </a>
                         </li>
 
                         <li>
