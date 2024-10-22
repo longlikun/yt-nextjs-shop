@@ -1,16 +1,13 @@
+"use client"
 import React from 'react'
 import ProductList from '@/app/components/ProductList'
-import { createClient } from '../util/supabase/server'
+import { useQuery } from '@tanstack/react-query'
+import { fetchProducts } from '../lib/products'
 
-const ProductListPage = async () => {
-    const supabase = createClient()
+const ProductListPage =  () => {
+  
 
-    const { data: products } = await supabase
-        .from('products')
-        .select('*')
-        .limit(10)
-
-    console.log('products', products)
+    const {data:products} = useQuery({ queryKey: ['products'], queryFn: fetchProducts })
 
     return (
         <div>

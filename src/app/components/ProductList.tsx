@@ -26,12 +26,15 @@ export default function ProductList({ productList }: props) {
               <div className="mt-4 flex justify-between">
                 <div>
                   <h3 className="text-sm text-gray-700">
-                    <Link href={`/products/${product.title}`}>
+                    <Link href={{
+                      pathname: `/products/${product.slug}`,
+                      query:{ id: product.id }
+                    }}>
                       <span aria-hidden="true" className="absolute inset-0" />
                       {product.title}
                     </Link>
                   </h3>
-            
+
                 </div>
                 <p className="text-sm font-medium text-gray-900">${product.price}</p>
               </div>
