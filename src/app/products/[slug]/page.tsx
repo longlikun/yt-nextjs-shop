@@ -1,9 +1,15 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { StarIcon } from '@heroicons/react/20/solid'
 import { Radio, RadioGroup } from '@headlessui/react'
+import { useSearchParams } from 'next/navigation'
+import { fetchProductSku } from '@/app/lib/products'
+import { useQuery } from '@tanstack/react-query'
+import useCartStore, { ICartItem } from '@/app/store/cartStore'
+import findLowestPriceSku from '@/app/util/product'
+import { IProductSku } from '@/app/types/products'
 
 
 const product = {
@@ -60,12 +66,52 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Example() {
+export default function ProductDetailPage() {
+  // 获取查询参数
+  const searchParams = useSearchParams()
+  const search = searchParams.get('id') || '1';
 
-  const [selectedSize, setSelectedSize] = useState(product.sizes[2])
+
+  // 查询数据
+  const { data: productSku } = useQuery(
+    {
+      queryKey: ['products', search],
+      queryFn: () => {
+        const data = fetchProductSku(search)
+        return data
+      },
+
+    })
+  // 设置选中商品
+  const [selectedItem, setSelectedItem] = useState<IProductSku | null>(null);
+  console.log('total', selectedItem)
+
+
+  useEffect(() => {
+    if (productSku) {
+      const lowestPriceSku = findLowestPriceSku(productSku);
+      if (lowestPriceSku) {
+        setSelectedItem(lowestPriceSku);
+      }
+    }
+  }, [productSku]);
+
+
+
+
+
+  const { totalQuantity, addItem } = useCartStore()
+  
+  const handleAdd = (selectedItem:IProductSku) => {
+
+    const updatedItem: ICartItem = {
+      ...selectedItem,
+      quantity: 1
+    };
+    addItem(updatedItem)
+  }
 
   return (
-
     <div className="bg-white">
       <div className="pt-6">
         <nav aria-label="Breadcrumb">
@@ -90,14 +136,13 @@ export default function Example() {
               </li>
             ))}
             <li className="text-sm">
-              <a href={product.href} aria-current="page" className="font-medium text-gray-500 hover:text-gray-600">
-                {product.name}
+              <a href={product.href} aria-current="page" className="font-medium text-gray-500 hover:text-gray-600 ">
+                {product.name}{totalQuantity}11
               </a>
             </li>
           </ol>
         </nav>
 
-        {/* Image gallery */}
 
 
         {/* Product info */}
@@ -105,27 +150,31 @@ export default function Example() {
           <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
             {/* <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product.name}</h1> */}
             <img
-              alt={product.images[2].alt}
+              alt="t"
               src={product.images[2].src}
-              
+
               className="h-100 w-full  object-cover object-center"
             />
-      
- 
+
+
           </div>
-          
+
 
           {/* Options */}
           <div className="mt-4 lg:row-span-3 lg:mt-0">
-            <h2 className="sr-only">Product information</h2>
-            
-          <h2 className="text-2xl mb-4 font-bold tracking-tight text-gray-900 sm:text-3xl">Basic Tee 6-Pack</h2>
+            <h2 className="sr-only">Product information </h2>
 
-            <p className="text-3xl tracking-tight text-gray-900">{product.price}</p>
+
+
+            <h2 className="text-2xl mb-4 font-bold tracking-tight text-gray-900 sm:text-3xl" >{selectedItem?.title}</h2>
+
+            <p className="text-3xl tracking-tight text-gray-900">{selectedItem?.price}</p>
+
 
             {/* Reviews */}
             <div className="mt-6">
               <h3 className="sr-only">Reviews</h3>
+
               <div className="flex items-center">
                 <div className="flex items-center">
                   {[0, 1, 2, 3, 4].map((rating) => (
@@ -146,71 +195,55 @@ export default function Example() {
               </div>
             </div>
 
-            <form className="mt-10">
-       
-      
-
+            <div className="mt-10">
               {/* Sizes */}
-              <div className="mt-10">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-gray-900">Size</h3>
-                  <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                    Size guide
-                  </a>
+              {productSku?.map((items) => (
+                <div className="mt-10" key={items.title}>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-medium text-gray-900">Size</h3>
+                    <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                      Size guide
+                    </a>
+                  </div>
+
+                  <fieldset aria-label="Choose a size" className="mt-4">
+                    <RadioGroup
+                      value={selectedItem}
+                      onChange={setSelectedItem}
+                      className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4 "
+                    >
+
+                      {items.products_sku.map((sku) => (
+                        <Radio
+                          key={sku.id}
+                          value={sku}
+
+                          disabled={!sku.stock}
+                          className={classNames(
+                            sku.stock
+                              ? 'cursor-pointer bg-white text-gray-900 shadow-sm  data-checked'
+                              : 'cursor-not-allowed bg-gray-50 text-gray-200 data-[checked]:bg-blue-400',
+                            'data-[checked]:bg-blue-400 group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1 sm:py-6',
+                          )}
+                        >
+                          {sku.size}
+
+                        </Radio>
+                      ))}
+
+                    </RadioGroup>
+                  </fieldset>
+                  <button
+                    type="submit"
+                    onClick={() => { handleAdd(selectedItem) }}
+                    className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  >
+                    加入购物车
+                  </button>
                 </div>
 
-                <fieldset aria-label="Choose a size" className="mt-4">
-                  <RadioGroup
-                    value={selectedSize}
-                    onChange={setSelectedSize}
-                    className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4"
-                  >
-                    {product.sizes.map((size) => (
-                      <Radio
-                        key={size.name}
-                        value={size}
-                        disabled={!size.inStock}
-                        className={classNames(
-                          size.inStock
-                            ? 'cursor-pointer bg-white text-gray-900 shadow-sm'
-                            : 'cursor-not-allowed bg-gray-50 text-gray-200',
-                          'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1 sm:py-6',
-                        )}
-                      >
-                        <span>{size.name}</span>
-                        {size.inStock ? (
-                          <span
-                            aria-hidden="true"
-                            className="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent group-data-[focus]:border group-data-[checked]:border-indigo-500"
-                          />
-                        ) : (
-                          <span
-                            aria-hidden="true"
-                            className="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200"
-                          >
-                            <svg
-                              stroke="currentColor"
-                              viewBox="0 0 100 100"
-                              preserveAspectRatio="none"
-                              className="absolute inset-0 h-full w-full stroke-2 text-gray-200"
-                            >
-                              <line x1={0} x2={100} y1={100} y2={0} vectorEffect="non-scaling-stroke" />
-                            </svg>
-                          </span>
-                        )}
-                      </Radio>
-                    ))}
-                  </RadioGroup>
-                </fieldset>
-              </div>
-
-              <button
-                type="submit"
-                className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              >
-                Add to bag
-              </button>
-            </form>
+              ))}
+            </div>
 
             <div className="mt-10">
               <h2 className="text-sm font-medium text-gray-900">细节</h2>
@@ -222,8 +255,8 @@ export default function Example() {
           </div>
 
           <div className="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pb-16 lg:pr-8 lg:pt-6">
-         
-         
+
+
             {/* Description and details */}
             <div>
               <h3 className="sr-only">Description</h3>
@@ -232,12 +265,12 @@ export default function Example() {
                 <p className="text-base text-gray-900">{product.description}</p>
               </div>
             </div>
-    
+
 
           </div>
         </div>
       </div>
     </div>
-   
+
   )
 }
