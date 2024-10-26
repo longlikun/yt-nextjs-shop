@@ -5,16 +5,21 @@ export interface ICartItem {
   id: string
   title: string
   price: number
+  image: string
+  size:string
   quantity: number
 }
+
+
 
 
 export interface ICartState {
   items: ICartItem[]
   totalQuantity: number
   removeItem: (itemId: string) => void
-  addItem: (item: ICartItem) => void
+  addItem: (itemId:ICartItem) => void
   cleanCart: () => void
+  updateQuantity:(itemId: string, quantity: number)=>void
 }
 
 const useCartStore = create<ICartState>()(

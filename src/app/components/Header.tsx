@@ -1,19 +1,19 @@
 
 import React from 'react'
 import HeadCategory from './HeadCategory'
-import { createClient } from '../util/supabase/server'
+// import { createClient } from '../util/supabase/server'
 import HeaderCart from './HeaderCart'
 
-const Header = async () => {
-    const supabase = createClient()
+const Header =  async () => {
+    // const supabase = createClient()
 
 
-    const { data: categories } = await supabase
-        .from('categories')
-        .select('*')
-        .limit(4)
+    // const { data: categories } = await supabase
+    //     .from('categories')
+    //     .select('*')
+    //     .limit(4)
 
-    console.log('categories', categories)
+    // console.log('categories', categories)
 // eslint-disable-next-line react-hooks/rules-of-hooks
 
 
@@ -33,11 +33,8 @@ const Header = async () => {
                             </svg>
                         </a>
                         {/* 类目 */}
-                        {categories && (
-                            <HeadCategory categories={categories}></HeadCategory>
-
-                        )}
-
+                   
+                            <HeadCategory ></HeadCategory>   
 
                     </div>
 

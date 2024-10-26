@@ -12,7 +12,6 @@ export interface IProduct {
 
 }
 export interface IProductSku {
-
     id: string
     category_id: string
     title: string

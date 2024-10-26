@@ -1,12 +1,14 @@
 "use client"
 import React from 'react'
 import useCartStore from '../store/cartStore'
+import Link from 'next/link'
 
 const HeaderCart = () => {
     const totalQuantity = useCartStore((state) => state.totalQuantity)
     return (
 
         <div className="hidden relative md:block">
+            <Link href={'/cart'}>
             <button
                 type="button"
                 className="overflow-hidden"
@@ -19,6 +21,7 @@ const HeaderCart = () => {
 
            
             </button>
+            </Link>
 
         </div>
     )

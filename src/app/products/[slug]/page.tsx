@@ -151,7 +151,7 @@ export default function ProductDetailPage() {
             {/* <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product.name}</h1> */}
             <img
               alt="t"
-              src={product.images[2].src}
+              src={selectedItem?.image}
 
               className="h-100 w-full  object-cover object-center"
             />
