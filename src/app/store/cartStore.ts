@@ -19,15 +19,19 @@ const useCartStore = create<ICartState>()(
         items: [],
         totalQuantity: 0,
 
-        removeItem: (itemId) => set((state) => {
-          const filterItems = state.items.filter((i) => i.id != itemId)
-          return {
-            items: filterItems,
-            totalQuantity: filterItems.reduce((acc, item) => acc + item.quantity, 0)
+        removeItem: (id: string) => set((state) => {
+          if(confirm("确实要删除商品吗")){
+              const filterItems = state.items.filter((i) => i.id != id)
+              return {
+                  items: filterItems,
+                  totalQuantity: filterItems.reduce((acc, item) => acc + item.quantity, 0)
+              }                     
 
-          };
+          }
+          return state; 
+    
 
-        }),
+      }),
         cleanCart: () => set({ items: [], totalQuantity: 0 }),
         addItem: (item: ICartItem) => set((state) => {
           const existingItem = state.items.find((i) => i.id === item.id);

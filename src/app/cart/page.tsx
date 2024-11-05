@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 
 
 const CartPage = () => {
-    const { items, removeItem, updateQuantity } = useCartStore()
+    const { items, removeItem, updateQuantity,cleanCart } = useCartStore()
     console.log('items', items)
     const router = useRouter()
 
@@ -35,7 +35,7 @@ const CartPage = () => {
                 <div className="flex justify-between items-center px-6 xl:px-0 max-w-5xl mx-auto w-full">  
                     <h1 className="text-2xl font-bold">商品购物车</h1>
                     <button
-                        onClick={() => {}}
+                        onClick={() => {cleanCart()}}
                         className="px-4 py-2 text-sm text-red-500 hover:text-white border border-red-500 hover:bg-red-500 rounded transition-colors duration-200"
                     >
                         清空购物车

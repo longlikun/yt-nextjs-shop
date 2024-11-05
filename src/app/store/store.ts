@@ -39,23 +39,29 @@ const useCartStore = create<CartState>()(
 
                 }),
                 removeItem: (id: string) => set((state) => {
-                    if(confirm("确实要删除商品吗")){
+                    if (confirm("确实要删除商品吗")) {
                         const filterItems = state.items.filter((i) => i.id != id)
                         return {
                             items: filterItems,
                             totalQuantity: filterItems.reduce((acc, item) => acc + item.quantity, 0)
-                        }                     
+                        }
 
                     }
-                    return state; 
-              
+                    return state;
+
 
                 }),
-                cleanCart: () => set(() => {
-                    return {
-                        items: [],
-                        totalQuantity: 0
+                cleanCart: () => set((state) => {
+                    if (confirm("确实要情况购物车吗")) {
+                        return {
+                            items: [],
+                            totalQuantity: 0
+                        }
+
                     }
+                    return state;
+
+
 
                 }),
                 updateQuantity: (itemId: string, quantity: number) => set((state) => {
