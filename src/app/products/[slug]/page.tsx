@@ -6,8 +6,7 @@ import { Radio, RadioGroup } from '@headlessui/react'
 import { useSearchParams } from 'next/navigation'
 import { fetchProductSku } from '@/app/lib/products'
 import { useQuery } from '@tanstack/react-query'
-import { ICartItem, IProductDetail, IProductSku } from '@/app/types/products'
-import useCartStore from '@/app/store/store'
+import { IProductDetail, IProductSku } from '@/app/types/products'
 
 
 const product = {
@@ -92,16 +91,8 @@ export default function ProductDetailPage() {
   }, [productWithSku]);
 
 
-  const {  addItem } = useCartStore()
 
-  const handleAdd = (selectedItem: IProductSku) => {
 
-    const updatedItem: ICartItem = {
-      ...selectedItem,
-      quantity: 1
-    };
-    addItem(updatedItem)
-  }
   // 如果数据还没加载完或没有数据，显示加载状态
   if (!productWithSku?.product_sku) {
     return (
@@ -207,7 +198,7 @@ export default function ProductDetailPage() {
                 </fieldset>
                 <button
                   type="submit"
-                  onClick={() => selectedItem && handleAdd(selectedItem)}
+                  onClick={() => {}}
                   className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   加入购物车
