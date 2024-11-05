@@ -12,9 +12,16 @@ export interface IProduct {
 
 }
 
-export interface IProductSku extends Partial<Omit<IProduct, "category_id">> {
+export interface IProductSku {
     size: string,
     stock: number,
+    id: string
+    title: string
+    image: string
+    description: string
+    price: number,
+    created_at: Date
+    updated_at: Date
 }
 
 export interface ICategory {
