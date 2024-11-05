@@ -1,25 +1,15 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-
-export interface ICartItem {
-  id: string
-  title: string
-  price: number
-  image: string
-  size:string
-  quantity: number
-}
-
-
+import { ICartItem } from '../types/products'
 
 
 export interface ICartState {
   items: ICartItem[]
   totalQuantity: number
   removeItem: (itemId: string) => void
-  addItem: (itemId:ICartItem) => void
+  addItem: (itemId: ICartItem) => void
   cleanCart: () => void
-  updateQuantity:(itemId: string, quantity: number)=>void
+  updateQuantity: (itemId: string, quantity: number) => void
 }
 
 const useCartStore = create<ICartState>()(

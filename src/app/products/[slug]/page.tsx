@@ -7,9 +7,8 @@ import { Radio, RadioGroup } from '@headlessui/react'
 import { useSearchParams } from 'next/navigation'
 import { fetchProductSku } from '@/app/lib/products'
 import { useQuery } from '@tanstack/react-query'
-import useCartStore, { ICartItem } from '@/app/store/cartStore'
-import findLowestPriceSku from '@/app/util/product'
-import { IProductSku } from '@/app/types/products'
+import useCartStore from '@/app/store/cartStore'
+import { ICartItem, IProductDetail, IProductSku } from '@/app/types/products'
 
 
 const product = {
@@ -73,36 +72,31 @@ export default function ProductDetailPage() {
 
 
   // 查询数据
-  const { data: productSku } = useQuery(
+  const { data: productWithSku } = useQuery<IProductDetail>(
     {
       queryKey: ['products', search],
       queryFn: () => {
         const data = fetchProductSku(search)
         return data
       },
+      enabled: !!search
 
     })
   // 设置选中商品
-  const [selectedItem, setSelectedItem] = useState<IProductSku | null>(null);
+  const [selectedItem, setSelectedItem] = useState<IProductSku>();
   console.log('total', selectedItem)
 
 
   useEffect(() => {
-    if (productSku) {
-      const lowestPriceSku = findLowestPriceSku(productSku);
-      if (lowestPriceSku) {
-        setSelectedItem(lowestPriceSku);
-      }
+    if (productWithSku?.default_sku) {
+      setSelectedItem(productWithSku.default_sku);
     }
-  }, [productSku]);
-
-
-
+  }, [productWithSku]);
 
 
   const { totalQuantity, addItem } = useCartStore()
-  
-  const handleAdd = (selectedItem:IProductSku) => {
+
+  const handleAdd = (selectedItem: IProductSku) => {
 
     const updatedItem: ICartItem = {
       ...selectedItem,
@@ -113,6 +107,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="bg-white">
+
       <div className="pt-6">
         <nav aria-label="Breadcrumb">
           <ol role="list" className="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8">
@@ -197,52 +192,51 @@ export default function ProductDetailPage() {
 
             <div className="mt-10">
               {/* Sizes */}
-              {productSku?.map((items) => (
-                <div className="mt-10" key={items.title}>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900">Size</h3>
-                    <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                      Size guide
-                    </a>
-                  </div>
 
-                  <fieldset aria-label="Choose a size" className="mt-4">
-                    <RadioGroup
-                      value={selectedItem}
-                      onChange={setSelectedItem}
-                      className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4 "
-                    >
-
-                      {items.products_sku.map((sku) => (
-                        <Radio
-                          key={sku.id}
-                          value={sku}
-
-                          disabled={!sku.stock}
-                          className={classNames(
-                            sku.stock
-                              ? 'cursor-pointer bg-white text-gray-900 shadow-sm  data-checked'
-                              : 'cursor-not-allowed bg-gray-50 text-gray-200 data-[checked]:bg-blue-400',
-                            'data-[checked]:bg-blue-400 group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1 sm:py-6',
-                          )}
-                        >
-                          {sku.size}
-
-                        </Radio>
-                      ))}
-
-                    </RadioGroup>
-                  </fieldset>
-                  <button
-                    type="submit"
-                    onClick={() => { handleAdd(selectedItem) }}
-                    className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    加入购物车
-                  </button>
+              <div className="mt-10" >
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-gray-900">Size</h3>
+                  <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                    Size guide
+                  </a>
                 </div>
 
-              ))}
+                <fieldset aria-label="Choose a size" className="mt-4">
+                  <RadioGroup
+                    value={selectedItem}
+                    onChange={setSelectedItem}
+                    className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4 "
+                  >
+                    {productWithSku?.product_sku.map((sku: IProductSku) => (
+                      <Radio
+                        key={sku.id}
+                        value={sku}
+
+                        disabled={!sku.stock}
+                        className={classNames(
+                          sku.stock
+                            ? 'cursor-pointer bg-white text-gray-900 shadow-sm  data-checked'
+                            : 'cursor-not-allowed bg-gray-50 text-gray-200 data-[checked]:bg-blue-400',
+                          'data-[checked]:bg-blue-400 group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1 sm:py-6',
+                        )}
+                      >
+                        {sku.size}
+
+                      </Radio>
+                    ))}
+
+                  </RadioGroup>
+                </fieldset>
+                <button
+                  type="submit"
+                  onClick={() => selectedItem && handleAdd(selectedItem)}
+                  className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                  加入购物车
+                </button>
+              </div>
+
+
             </div>
 
             <div className="mt-10">
