@@ -2,13 +2,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { StarIcon } from '@heroicons/react/20/solid'
 import { Radio, RadioGroup } from '@headlessui/react'
 import { useSearchParams } from 'next/navigation'
 import { fetchProductSku } from '@/app/lib/products'
 import { useQuery } from '@tanstack/react-query'
-import useCartStore from '@/app/store/cartStore'
 import { ICartItem, IProductDetail, IProductSku } from '@/app/types/products'
+import useCartStore from '@/app/store/store'
 
 
 const product = {
@@ -59,7 +58,6 @@ const product = {
   details:
     'The 6-Pack includes two black, two white, and two heather gray Basic Tees. Sign up for our subscription service and be the first to get new, exciting colors, like our upcoming "Charcoal Gray" limited release.',
 }
-const reviews = { href: '#', average: 4, totalCount: 117 }
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -94,7 +92,7 @@ export default function ProductDetailPage() {
   }, [productWithSku]);
 
 
-  const { totalQuantity, addItem } = useCartStore()
+  const {  addItem } = useCartStore()
 
   const handleAdd = (selectedItem: IProductSku) => {
 
@@ -103,6 +101,14 @@ export default function ProductDetailPage() {
       quantity: 1
     };
     addItem(updatedItem)
+  }
+  // 如果数据还没加载完或没有数据，显示加载状态
+  if (!productWithSku?.product_sku) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl">no found...</div>
+      </div>
+    )
   }
 
   return (
@@ -132,13 +138,11 @@ export default function ProductDetailPage() {
             ))}
             <li className="text-sm">
               <a href={product.href} aria-current="page" className="font-medium text-gray-500 hover:text-gray-600 ">
-                {product.name}{totalQuantity}11
+                {product.name}{}11
               </a>
             </li>
           </ol>
         </nav>
-
-
 
         {/* Product info */}
         <div className="mx-auto max-w-2xl px-4 pb-16 pt-4 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-8">
@@ -159,36 +163,10 @@ export default function ProductDetailPage() {
           <div className="mt-4 lg:row-span-3 lg:mt-0">
             <h2 className="sr-only">Product information </h2>
 
+            <h2 className="text-2xl mb-4 font-bold tracking-tight text-gray-900 sm:text-3xl" >{productWithSku?.title}</h2>
+            <h3 className="text-lg mb-4 font-bold tracking-tight text-gray-500 sm:text-xl" >{selectedItem?.title}</h3>
 
-
-            <h2 className="text-2xl mb-4 font-bold tracking-tight text-gray-900 sm:text-3xl" >{selectedItem?.title}</h2>
-
-            <p className="text-3xl tracking-tight text-gray-900">{selectedItem?.price}</p>
-
-
-            {/* Reviews */}
-            <div className="mt-6">
-              <h3 className="sr-only">Reviews</h3>
-
-              <div className="flex items-center">
-                <div className="flex items-center">
-                  {[0, 1, 2, 3, 4].map((rating) => (
-                    <StarIcon
-                      key={rating}
-                      aria-hidden="true"
-                      className={classNames(
-                        reviews.average > rating ? 'text-gray-900' : 'text-gray-200',
-                        'h-5 w-5 flex-shrink-0',
-                      )}
-                    />
-                  ))}
-                </div>
-                <p className="sr-only">{reviews.average} out of 5 stars</p>
-                <a href={reviews.href} className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                  {reviews.totalCount} reviews
-                </a>
-              </div>
-            </div>
+            <p className="text-3xl tracking-tight text-gray-900">${selectedItem?.price}</p>
 
             <div className="mt-10">
               {/* Sizes */}
@@ -215,7 +193,7 @@ export default function ProductDetailPage() {
                         disabled={!sku.stock}
                         className={classNames(
                           sku.stock
-                            ? 'cursor-pointer bg-white text-gray-900 shadow-sm  data-checked'
+                            ? 'cursor-pointer bg-white text-gray-900 font-bold shadow-sm  data-checked'
                             : 'cursor-not-allowed bg-gray-50 text-gray-200 data-[checked]:bg-blue-400',
                           'data-[checked]:bg-blue-400 group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1 sm:py-6',
                         )}

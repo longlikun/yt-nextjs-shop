@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import useCartStore from '../store/cartStore'
+import useCartStore from '../store/store'
 import Link from 'next/link'
 
 const HeaderCart = () => {
