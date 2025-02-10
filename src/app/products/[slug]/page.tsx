@@ -7,6 +7,7 @@ import { useSearchParams } from 'next/navigation'
 import { fetchProductSku } from '@/app/lib/products'
 import { useQuery } from '@tanstack/react-query'
 import { IProductDetail, IProductSku } from '@/app/types/products'
+import useCartStore from '@/store/cartStore'
 
 
 const product = {
@@ -66,7 +67,7 @@ export default function ProductDetailPage() {
   // 获取查询参数
   const searchParams = useSearchParams()
   const search = searchParams.get('id') || '1';
-
+  const { addCart } = useCartStore()
 
   // 查询数据
   const { data: productWithSku } = useQuery<IProductDetail>(
@@ -101,6 +102,14 @@ export default function ProductDetailPage() {
       </div>
     )
   }
+  // 商品添加购物车动作
+  const handleAddCart = (selectedItem: IProductSku) => {
+    const updateItem = {
+      ...selectedItem,
+      quantity: 1
+    }
+    addCart(updateItem)
+  }
 
   return (
     <div className="bg-white">
@@ -129,7 +138,7 @@ export default function ProductDetailPage() {
             ))}
             <li className="text-sm">
               <a href={product.href} aria-current="page" className="font-medium text-gray-500 hover:text-gray-600 ">
-                {product.name}{}11
+                {product.name}{ }11
               </a>
             </li>
           </ol>
@@ -198,7 +207,7 @@ export default function ProductDetailPage() {
                 </fieldset>
                 <button
                   type="submit"
-                  onClick={() => {}}
+                  onClick={() => selectedItem && handleAddCart(selectedItem)}
                   className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   加入购物车
